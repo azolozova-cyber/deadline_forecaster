@@ -1,0 +1,25 @@
+[project]
+name = "deadline-forecaster"
+version = "0.1.0"
+description = "Forecaster"
+authors = [
+    {name = "Me"}
+]
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "django (>=4.2,<5.0)",
+    "pandas (>=2.3.3,<3.0.0)",
+    "matplotlib (>=3.10.8,<4.0.0)"
+]
+
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[dependency-groups]
+dev = [
+    "flake8 (>=7.3.0,<8.0.0)",
+    "ruff (>=0.14.11,<0.15.0)"
+]
