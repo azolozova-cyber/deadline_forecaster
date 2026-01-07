@@ -1,5 +1,6 @@
 from django.shortcuts import render, get_object_or_404
 from .models import Project
+from .analytics import generate_status_chart
 
 def project_list(request):
     projects = Project.objects.all()
@@ -7,4 +8,5 @@ def project_list(request):
 
 def project_detail(request, pk):
     project = get_object_or_404(Project, pk=pk)
-    return render(request, 'forecaster/project_detail.html', {'project': project})
+    chart = generate_status_chart(pk)
+    return render(request, 'forecaster/project_detail.html', {'project': project, 'chart': chart})

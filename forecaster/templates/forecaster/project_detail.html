@@ -16,6 +16,13 @@
     </div>
 </div>
 
+{% if chart %}
+<div class="bg-white p-6 rounded shadow mb-6 text-center">
+    <h2 class="text-xl font-bold mb-4">Analytics</h2>
+    <img src="{{ chart }}" alt="Status Chart" class="mx-auto">
+</div>
+{% endif %}
+
 <div class="mb-4 flex justify-between items-center">
     <h2 class="text-2xl font-bold">Tasks</h2>
     <!-- Will link to create view later -->
