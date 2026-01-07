@@ -26,7 +26,7 @@
 <div class="mb-4 flex justify-between items-center">
     <h2 class="text-2xl font-bold">Tasks</h2>
     <!-- Will link to create view later -->
-    <a href="#" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">Add Task</a>
+    <a href="{% url 'task_create' project.id %}" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">Add Task</a>
 </div>
 
 <div class="overflow-x-auto bg-white rounded shadow">
@@ -43,7 +43,7 @@
         <tbody>
             {% for task in project.tasks.all %}
             <tr class="hover:bg-gray-50 border-b last:border-0">
-                <td class="p-3">{{ task.title }}</td>
+                <td class="p-3"><a href="{% url 'task_edit' task.id %}" class="text-blue-600 hover:underline">{{ task.title }}</a></td>
                 <td class="p-3">{{ task.assignee.full_name|default:"Unassigned" }}</td>
                 <td class="p-3">
                     <span class="px-2 py-1 rounded text-xs 
