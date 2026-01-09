@@ -164,11 +164,21 @@ def generate_status_dynamics_chart(project_id):
         return None
 
     logs["timestamp"] = pd.to_datetime(logs["timestamp"])
+    # Ensure logs are TZ-aware (UTC) to match consistent comparison
+    if logs["timestamp"].dt.tz is None:
+        logs["timestamp"] = logs["timestamp"].dt.tz_localize("UTC")
+    else:
+        logs["timestamp"] = logs["timestamp"].dt.tz_convert("UTC")
+
     logs = logs.sort_values("timestamp")
 
     # Get date range: from first log to today
+    # Normalize start_date and make it UTC
     start_date = logs["timestamp"].min().normalize()
-    end_date = pd.Timestamp.now().normalize()
+    
+    # Get current time in UTC and normalize
+    end_date = pd.Timestamp.now(tz="UTC").normalize()
+    
     date_range = pd.date_range(start=start_date, end=end_date, freq="D")
 
     # Reconstruct state for each day
