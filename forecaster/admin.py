@@ -10,7 +10,7 @@ class ProjectAdmin(admin.ModelAdmin):
 
 @admin.register(TeamMember)
 class TeamMemberAdmin(admin.ModelAdmin):
-    list_display = ("full_name", "role", "hourly_rate")
+    list_display = ("full_name", "role", "hourly_rate", "daily_capacity")
     search_fields = ("full_name", "role")
 
 

@@ -22,6 +22,14 @@ Deadline Forecaster helps project managers estimate the risk of missing deadline
    ```
 
 2. **Setup Environment:**
+   
+   **Using Poetry (Recommended):**
+   ```bash
+   poetry install
+   poetry shell
+   ```
+
+   **Or using pip:**
    ```bash
    python -m venv .venv
    source .venv/bin/activate  # Linux/Mac

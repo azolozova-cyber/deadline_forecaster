@@ -16,10 +16,43 @@
     </div>
 </div>
 
-{% if chart %}
-<div class="bg-white p-6 rounded shadow mb-6 text-center">
-    <h2 class="text-xl font-bold mb-4">Analytics</h2>
-    <img src="{{ chart }}" alt="Status Chart" class="mx-auto">
+{% if status_chart or workload_chart or backlog_chart %}
+<div class="bg-white p-6 rounded shadow mb-6">
+    <h2 class="text-2xl font-bold mb-6 text-center text-gray-800">Advanced Analytics Dashboard</h2>
+    
+    <!-- Bus Factor Alert -->
+    <div class="mb-8 p-4 bg-amber-50 border-l-4 border-amber-500 text-amber-800 rounded-r shadow-sm">
+        <div class="flex items-center">
+            <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+            <div>
+                <p class="font-bold">Risk Analysis (Hit-by-Bus Factor):</p>
+                <p>{{ bus_factor_alert }}</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+        {% if status_chart %}
+        <div class="bg-gray-50 p-4 rounded shadow-inner">
+            <h3 class="text-lg font-semibold text-center mb-4 text-gray-700">Task Statuses</h3>
+            <img src="{{ status_chart }}" alt="Status Chart" class="mx-auto rounded shadow-sm bg-white p-2">
+        </div>
+        {% endif %}
+        
+        {% if workload_chart %}
+        <div class="bg-gray-50 p-4 rounded shadow-inner">
+            <h3 class="text-lg font-semibold text-center mb-4 text-gray-700">Workload Concentration</h3>
+            <img src="{{ workload_chart }}" alt="Workload Chart" class="mx-auto rounded shadow-sm bg-white p-2">
+        </div>
+        {% endif %}
+    </div>
+
+    {% if backlog_chart %}
+    <div class="bg-gray-50 p-4 rounded shadow-inner">
+        <h3 class="text-lg font-semibold text-center mb-4 text-gray-700">Scope Growth & Backlog Probability</h3>
+        <img src="{{ backlog_chart }}" alt="Backlog Chart" class="mx-auto rounded shadow-sm bg-white p-2 w-full max-w-2xl">
+    </div>
+    {% endif %}
 </div>
 {% endif %}
 
