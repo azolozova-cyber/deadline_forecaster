@@ -5,6 +5,7 @@ from .analytics import (
     generate_status_chart,
     generate_workload_chart,
     generate_backlog_chart,
+    generate_status_dynamics_chart,
     calculate_bus_factor_alert,
 )
 
@@ -19,6 +20,7 @@ def project_detail(request, pk):
     status_chart = generate_status_chart(pk)
     workload_chart = generate_workload_chart(pk)
     backlog_chart = generate_backlog_chart(pk)
+    dynamics_chart = generate_status_dynamics_chart(pk)
     bus_factor_alert = calculate_bus_factor_alert(pk)
 
     return render(
@@ -29,6 +31,7 @@ def project_detail(request, pk):
             "status_chart": status_chart,
             "workload_chart": workload_chart,
             "backlog_chart": backlog_chart,
+            "dynamics_chart": dynamics_chart,
             "bus_factor_alert": bus_factor_alert,
         },
     )

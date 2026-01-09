@@ -48,9 +48,16 @@
     </div>
 
     {% if backlog_chart %}
-    <div class="bg-gray-50 p-4 rounded shadow-inner">
+    <div class="bg-gray-50 p-4 rounded shadow-inner mb-8">
         <h3 class="text-lg font-semibold text-center mb-4 text-gray-700">Scope Growth & Backlog Probability</h3>
-        <img src="{{ backlog_chart }}" alt="Backlog Chart" class="mx-auto rounded shadow-sm bg-white p-2 w-full max-w-2xl">
+        <img src="{{ backlog_chart }}" alt="Backlog Chart" class="mx-auto rounded shadow-sm bg-white p-2 w-full max-w-3xl">
+    </div>
+    {% endif %}
+
+    {% if dynamics_chart %}
+    <div class="bg-gray-50 p-4 rounded shadow-inner">
+        <h3 class="text-lg font-semibold text-center mb-4 text-gray-700">Task Status Dynamics (Ribbon Chart)</h3>
+        <img src="{{ dynamics_chart }}" alt="Dynamics Chart" class="mx-auto rounded shadow-sm bg-white p-2 w-full max-w-3xl">
     </div>
     {% endif %}
 </div>

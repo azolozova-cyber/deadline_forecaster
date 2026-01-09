@@ -77,3 +77,13 @@ class Task(models.Model):
 
     def __str__(self):
         return self.title
+
+
+class TaskStatusLog(models.Model):
+    task = models.ForeignKey(Task, on_delete=models.CASCADE, related_name="status_logs")
+    old_status = models.CharField(max_length=20, choices=Task.STATUS_CHOICES, null=True, blank=True)
+    new_status = models.CharField(max_length=20, choices=Task.STATUS_CHOICES)
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.task.title}: {self.old_status} -> {self.new_status} at {self.timestamp}"

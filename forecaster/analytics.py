@@ -143,3 +143,89 @@ def calculate_bus_factor_alert(project_id):
         return "Project load is well-distributed. Low 'Hit by Bus' risk."
 
     return " | ".join(alerts)
+
+
+def generate_status_dynamics_chart(project_id):
+    """
+    Generates a stacked area chart (ribbon chart) showing the number of tasks
+    in each status (Todo, In Progress, Done) over time.
+    """
+    project = Project.objects.get(id=project_id)
+    # Fetch all logs for this project's tasks, ordered by time
+    logs = pd.DataFrame(
+        list(
+            project.tasks.model.status_logs.field.model.objects.filter(
+                task__project=project
+            ).values("task_id", "new_status", "timestamp")
+        )
+    )
+
+    if logs.empty:
+        return None
+
+    logs["timestamp"] = pd.to_datetime(logs["timestamp"])
+    logs = logs.sort_values("timestamp")
+
+    # Get date range: from first log to today
+    start_date = logs["timestamp"].min().normalize()
+    end_date = pd.Timestamp.now().normalize()
+    date_range = pd.date_range(start=start_date, end=end_date, freq="D")
+
+    # Reconstruct state for each day
+    # We will iterate through days and snapshot the status of all tasks
+    
+    # Track current status of each task: {task_id: status}
+    task_status_state = {}
+    
+    # Result storage
+    history = []
+
+    # Pointer for logs
+    log_idx = 0
+    total_logs = len(logs)
+
+    for single_date in date_range:
+        # Move forward in logs until we pass the current single_date (end of day)
+        day_end = single_date + pd.Timedelta(days=1) - pd.Timedelta(seconds=1)
+        
+        while log_idx < total_logs and logs.iloc[log_idx]["timestamp"] <= day_end:
+            row = logs.iloc[log_idx]
+            task_status_state[row["task_id"]] = row["new_status"]
+            log_idx += 1
+        
+        # Snapshot
+        counts = {"todo": 0, "in_progress": 0, "done": 0}
+        for status in task_status_state.values():
+            if status in counts:
+                counts[status] += 1
+        
+        counts["date"] = single_date
+        history.append(counts)
+
+    df_hist = pd.DataFrame(history)
+    df_hist = df_hist.set_index("date")
+
+    if df_hist.empty:
+        return None
+
+    # Plotting
+    fig, ax = plt.subplots(figsize=(8, 5))
+    
+    dates = df_hist.index
+    todo = df_hist["todo"]
+    in_progress = df_hist["in_progress"]
+    done = df_hist["done"]
+
+    # Stackplot
+    ax.stackplot(dates, todo, in_progress, done, 
+                 labels=["To Do", "In Progress", "Done"],
+                 colors=["#cbd5e1", "#60a5fa", "#4ade80"], 
+                 alpha=0.8)
+
+    ax.set_title("Project Dynamics: Task Status Evolution")
+    ax.set_ylabel("Number of Tasks")
+    ax.legend(loc="upper left")
+    ax.grid(True, alpha=0.3)
+    plt.tight_layout()
+
+    return get_image_uri(fig)
