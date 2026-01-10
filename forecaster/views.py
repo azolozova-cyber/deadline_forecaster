@@ -7,7 +7,7 @@ from .analytics import (
     generate_workload_chart,
     generate_backlog_chart,
     generate_status_dynamics_chart,
-    calculate_bus_factor_alert,
+    get_bus_factor_data,
 )
 
 
@@ -24,7 +24,7 @@ def project_detail(request, pk):
     workload_chart = generate_workload_chart(pk)
     backlog_chart = generate_backlog_chart(pk)
     dynamics_chart = generate_status_dynamics_chart(pk)
-    bus_factor_alert = calculate_bus_factor_alert(pk)
+    bus_factor_data = get_bus_factor_data(pk)
 
     # Task Pagination
     task_list = project.tasks.all().order_by("-created_at")
@@ -41,7 +41,7 @@ def project_detail(request, pk):
             "workload_chart": workload_chart,
             "backlog_chart": backlog_chart,
             "dynamics_chart": dynamics_chart,
-            "bus_factor_alert": bus_factor_alert,
+            "bus_factor_data": bus_factor_data,
             "tasks": page_obj,  # Pass the page object instead of all tasks (if template used project.tasks.all)
         },
     )

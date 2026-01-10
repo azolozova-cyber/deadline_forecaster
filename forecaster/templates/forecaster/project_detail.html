@@ -20,16 +20,46 @@
 <div class="bg-white p-6 rounded shadow mb-6">
     <h2 class="text-2xl font-bold mb-6 text-center text-gray-800">Advanced Analytics Dashboard</h2>
     
-    <!-- Bus Factor Alert -->
-    <div class="mb-8 p-4 bg-amber-50 border-l-4 border-amber-500 text-amber-800 rounded-r shadow-sm">
-        <div class="flex items-center">
-            <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
-            <div>
-                <p class="font-bold">Risk Analysis (Hit-by-Bus Factor):</p>
-                <p>{{ bus_factor_alert }}</p>
-            </div>
+    <!-- Bus Factor Table -->
+    {% if bus_factor_data %}
+    <div class="mb-8 p-4 bg-white border border-gray-200 rounded shadow-sm">
+        <h3 class="text-lg font-bold mb-4 flex items-center">
+            <svg class="w-6 h-6 mr-2 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+            Team Workload Distribution (Bus Factor)
+        </h3>
+        <div class="overflow-x-auto">
+            <table class="w-full text-left text-sm">
+                <thead class="bg-gray-100 text-gray-600 uppercase">
+                    <tr>
+                        <th class="p-3">Member</th>
+                        <th class="p-3">Total Hours</th>
+                        <th class="p-3">Share</th>
+                        <th class="p-3">Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in bus_factor_data %}
+                    <tr class="border-b last:border-0 {% if item.status == 'critical' %}bg-red-50{% endif %}">
+                        <td class="p-3 font-medium">{{ item.name }}</td>
+                        <td class="p-3">{{ item.hours }} h</td>
+                        <td class="p-3">{{ item.share }}%</td>
+                        <td class="p-3">
+                            {% if item.status == 'critical' %}
+                                <span class="text-red-600 font-bold flex items-center">
+                                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                                    Critical Risk
+                                </span>
+                            {% else %}
+                                <span class="text-green-600">Balanced</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
         </div>
     </div>
+    {% endif %}
 
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
         {% if status_chart %}
@@ -47,19 +77,22 @@
         {% endif %}
     </div>
 
-    {% if backlog_chart %}
-    <div class="bg-gray-50 p-4 rounded shadow-inner mb-8">
-        <h3 class="text-lg font-semibold text-center mb-4 text-gray-700">Scope Growth & Backlog Probability</h3>
-        <img src="{{ backlog_chart }}" alt="Backlog Chart" class="mx-auto rounded shadow-sm bg-white p-2 w-full max-w-3xl">
-    </div>
-    {% endif %}
+    <!-- Charts Row: Backlog & Dynamics -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        {% if backlog_chart %}
+        <div class="bg-gray-50 p-4 rounded shadow-inner">
+            <h3 class="text-lg font-semibold text-center mb-4 text-gray-700">Scope Growth (Backlog)</h3>
+            <img src="{{ backlog_chart }}" alt="Backlog Chart" class="mx-auto rounded shadow-sm bg-white p-2 w-full">
+        </div>
+        {% endif %}
 
-    {% if dynamics_chart %}
-    <div class="bg-gray-50 p-4 rounded shadow-inner">
-        <h3 class="text-lg font-semibold text-center mb-4 text-gray-700">Task Status Dynamics (Ribbon Chart)</h3>
-        <img src="{{ dynamics_chart }}" alt="Dynamics Chart" class="mx-auto rounded shadow-sm bg-white p-2 w-full max-w-3xl">
+        {% if dynamics_chart %}
+        <div class="bg-gray-50 p-4 rounded shadow-inner">
+            <h3 class="text-lg font-semibold text-center mb-4 text-gray-700">Task Dynamics (Evolution)</h3>
+            <img src="{{ dynamics_chart }}" alt="Dynamics Chart" class="mx-auto rounded shadow-sm bg-white p-2 w-full">
+        </div>
+        {% endif %}
     </div>
-    {% endif %}
 </div>
 {% endif %}
 

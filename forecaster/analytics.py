@@ -112,37 +112,39 @@ def generate_backlog_chart(project_id):
     return get_image_uri(fig)
 
 
-def calculate_bus_factor_alert(project_id):
+def get_bus_factor_data(project_id):
     """
-    Returns a string warning if the bus factor is critical.
-    Bus Factor 1 means if 1 specific person leaves, the project stalls.
+    Returns a list of dicts with workload metrics for each member.
     """
     project = Project.objects.get(id=project_id)
     tasks = project.tasks.all()
 
     if not tasks.exists():
-        return "No tasks to analyze."
+        return []
 
     total_hours = sum(t.estimated_hours for t in tasks)
     if total_hours == 0:
-        return "Total scope is 0 hours."
+        return []
 
     metrics = {}
     for task in tasks:
         name = task.assignee.full_name if task.assignee else "Unassigned"
         metrics[name] = metrics.get(name, 0) + task.estimated_hours
 
-    alerts = []
-    # If any single person handles > 40% of total hours, that's a risk.
+    data = []
     for name, hours in metrics.items():
         share = hours / total_hours
-        if share > 0.40:
-            alerts.append(f"CRITICAL: {name} handles {share:.1%} of total workload.")
-
-    if not alerts:
-        return "Project load is well-distributed. Low 'Hit by Bus' risk."
-
-    return " | ".join(alerts)
+        status = "critical" if share > 0.40 else "ok"
+        data.append({
+            "name": name,
+            "hours": hours,
+            "share": round(share * 100, 1),
+            "status": status
+        })
+    
+    # Sort by share descending
+    data.sort(key=lambda x: x["share"], reverse=True)
+    return data
 
 
 def generate_status_dynamics_chart(project_id):
