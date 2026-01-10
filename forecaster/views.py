@@ -1,3 +1,4 @@
+from django.core.paginator import Paginator
 from django.shortcuts import render, get_object_or_404, redirect
 from .models import Project, Task
 from .forms import TaskForm
@@ -17,11 +18,19 @@ def project_list(request):
 
 def project_detail(request, pk):
     project = get_object_or_404(Project, pk=pk)
+    
+    # Analytics
     status_chart = generate_status_chart(pk)
     workload_chart = generate_workload_chart(pk)
     backlog_chart = generate_backlog_chart(pk)
     dynamics_chart = generate_status_dynamics_chart(pk)
     bus_factor_alert = calculate_bus_factor_alert(pk)
+
+    # Task Pagination
+    task_list = project.tasks.all().order_by("-created_at")
+    paginator = Paginator(task_list, 10)  # Show 10 tasks per page
+    page_number = request.GET.get("page")
+    page_obj = paginator.get_page(page_number)
 
     return render(
         request,
@@ -33,6 +42,7 @@ def project_detail(request, pk):
             "backlog_chart": backlog_chart,
             "dynamics_chart": dynamics_chart,
             "bus_factor_alert": bus_factor_alert,
+            "tasks": page_obj,  # Pass the page object instead of all tasks (if template used project.tasks.all)
         },
     )
 

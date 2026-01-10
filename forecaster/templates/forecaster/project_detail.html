@@ -81,7 +81,7 @@
             </tr>
         </thead>
         <tbody>
-            {% for task in project.tasks.all %}
+            {% for task in tasks %}
             <tr class="hover:bg-gray-50 border-b last:border-0">
                 <td class="p-3"><a href="{% url 'task_edit' task.id %}" class="text-blue-600 hover:underline">{{ task.title }}</a></td>
                 <td class="p-3">{{ task.assignee.full_name|default:"Unassigned" }}</td>
@@ -103,5 +103,23 @@
             {% endfor %}
         </tbody>
     </table>
+</div>
+
+<div class="mt-4 flex justify-center">
+    <div class="inline-flex rounded-md shadow-sm" role="group">
+        {% if tasks.has_previous %}
+            <a href="?page=1" class="px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-l-lg hover:bg-gray-100 hover:text-blue-700">First</a>
+            <a href="?page={{ tasks.previous_page_number }}" class="px-4 py-2 text-sm font-medium text-gray-900 bg-white border-t border-b border-r border-gray-200 hover:bg-gray-100 hover:text-blue-700">Previous</a>
+        {% endif %}
+
+        <span class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 border-t border-b border-r border-gray-200">
+            Page {{ tasks.number }} of {{ tasks.paginator.num_pages }}
+        </span>
+
+        {% if tasks.has_next %}
+            <a href="?page={{ tasks.next_page_number }}" class="px-4 py-2 text-sm font-medium text-gray-900 bg-white border-t border-b border-r border-gray-200 hover:bg-gray-100 hover:text-blue-700">Next</a>
+            <a href="?page={{ tasks.paginator.num_pages }}" class="px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-r-lg hover:bg-gray-100 hover:text-blue-700">Last</a>
+        {% endif %}
+    </div>
 </div>
 {% endblock %}

@@ -1,3 +1,4 @@
+import django.utils.timezone
 from django.db import models
 from django.contrib.auth.models import User
 
@@ -83,7 +84,7 @@ class TaskStatusLog(models.Model):
     task = models.ForeignKey(Task, on_delete=models.CASCADE, related_name="status_logs")
     old_status = models.CharField(max_length=20, choices=Task.STATUS_CHOICES, null=True, blank=True)
     new_status = models.CharField(max_length=20, choices=Task.STATUS_CHOICES)
-    timestamp = models.DateTimeField(auto_now_add=True)
+    timestamp = models.DateTimeField(default=django.utils.timezone.now)
 
     def __str__(self):
         return f"{self.task.title}: {self.old_status} -> {self.new_status} at {self.timestamp}"
