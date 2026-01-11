@@ -28,9 +28,14 @@ def project_detail(request, pk):
 
     # Task Pagination
     task_list = project.tasks.all().order_by("-created_at")
-    paginator = Paginator(task_list, 10)  # Show 10 tasks per page
-    page_number = request.GET.get("page")
-    page_obj = paginator.get_page(page_number)
+    task_paginator = Paginator(task_list, 10)  # Show 10 tasks per page
+    task_page_number = request.GET.get("page")
+    task_page_obj = task_paginator.get_page(task_page_number)
+
+    # Bus Factor Pagination
+    bus_paginator = Paginator(bus_factor_data, 5)  # Show 5 members per page
+    bus_page_number = request.GET.get("bus_page")
+    bus_page_obj = bus_paginator.get_page(bus_page_number)
 
     return render(
         request,
@@ -41,8 +46,8 @@ def project_detail(request, pk):
             "workload_chart": workload_chart,
             "backlog_chart": backlog_chart,
             "dynamics_chart": dynamics_chart,
-            "bus_factor_data": bus_factor_data,
-            "tasks": page_obj,  # Pass the page object instead of all tasks (if template used project.tasks.all)
+            "bus_factor_data": bus_page_obj,
+            "tasks": task_page_obj,
         },
     )
 

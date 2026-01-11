@@ -58,6 +58,27 @@
                 </tbody>
             </table>
         </div>
+        
+        <!-- Bus Factor Pagination -->
+        {% if bus_factor_data.has_other_pages %}
+        <div class="mt-4 flex justify-center">
+            <div class="inline-flex rounded-md shadow-sm" role="group">
+                {% if bus_factor_data.has_previous %}
+                    <a href="?bus_page=1{% if request.GET.page %}&page={{ request.GET.page }}{% endif %}" class="px-3 py-1 text-xs font-medium text-gray-900 bg-white border border-gray-200 rounded-l hover:bg-gray-100 hover:text-blue-700">First</a>
+                    <a href="?bus_page={{ bus_factor_data.previous_page_number }}{% if request.GET.page %}&page={{ request.GET.page }}{% endif %}" class="px-3 py-1 text-xs font-medium text-gray-900 bg-white border-t border-b border-r border-gray-200 hover:bg-gray-100 hover:text-blue-700">Prev</a>
+                {% endif %}
+
+                <span class="px-3 py-1 text-xs font-medium text-gray-700 bg-gray-100 border-t border-b border-r border-gray-200">
+                    Page {{ bus_factor_data.number }} of {{ bus_factor_data.paginator.num_pages }}
+                </span>
+
+                {% if bus_factor_data.has_next %}
+                    <a href="?bus_page={{ bus_factor_data.next_page_number }}{% if request.GET.page %}&page={{ request.GET.page }}{% endif %}" class="px-3 py-1 text-xs font-medium text-gray-900 bg-white border-t border-b border-r border-gray-200 hover:bg-gray-100 hover:text-blue-700">Next</a>
+                    <a href="?bus_page={{ bus_factor_data.paginator.num_pages }}{% if request.GET.page %}&page={{ request.GET.page }}{% endif %}" class="px-3 py-1 text-xs font-medium text-gray-900 bg-white border border-gray-200 rounded-r hover:bg-gray-100 hover:text-blue-700">Last</a>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
     </div>
     {% endif %}
 
