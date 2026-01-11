@@ -7,6 +7,9 @@ from .analytics import (
     generate_workload_chart,
     generate_backlog_chart,
     generate_status_dynamics_chart,
+    generate_velocity_chart,
+    generate_accuracy_scatter_chart,
+    calculate_project_forecast,
     get_bus_factor_data,
 )
 
@@ -24,6 +27,10 @@ def project_detail(request, pk):
     workload_chart = generate_workload_chart(pk)
     backlog_chart = generate_backlog_chart(pk)
     dynamics_chart = generate_status_dynamics_chart(pk)
+    velocity_chart = generate_velocity_chart(pk)
+    accuracy_chart = generate_accuracy_scatter_chart(pk)
+    
+    forecast = calculate_project_forecast(pk)
     bus_factor_data = get_bus_factor_data(pk)
 
     # Task Pagination
@@ -46,6 +53,9 @@ def project_detail(request, pk):
             "workload_chart": workload_chart,
             "backlog_chart": backlog_chart,
             "dynamics_chart": dynamics_chart,
+            "velocity_chart": velocity_chart,
+            "accuracy_chart": accuracy_chart,
+            "forecast": forecast,
             "bus_factor_data": bus_page_obj,
             "tasks": task_page_obj,
         },

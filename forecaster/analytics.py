@@ -147,6 +147,165 @@ def get_bus_factor_data(project_id):
     return data
 
 
+def generate_velocity_chart(project_id):
+    """
+    Weekly velocity chart: Sum of estimated hours of tasks completed per week.
+    """
+    project = Project.objects.get(id=project_id)
+    # Get logs where status changed to 'done'
+    done_logs = project.tasks.model.status_logs.field.model.objects.filter(
+        task__project=project,
+        new_status='done'
+    ).select_related('task')
+
+    if not done_logs.exists():
+        return None
+
+    data = []
+    for log in done_logs:
+        data.append({
+            "date": log.timestamp,
+            "hours": log.task.estimated_hours
+        })
+    
+    df = pd.DataFrame(data)
+    if df.empty:
+        return None
+        
+    # Ensure TZ-aware UTC
+    df["date"] = pd.to_datetime(df["date"])
+    if df["date"].dt.tz is None:
+        df["date"] = df["date"].dt.tz_localize("UTC")
+    else:
+        df["date"] = df["date"].dt.tz_convert("UTC")
+
+    # Resample by Week (W-MON)
+    weekly_velocity = df.resample('W-MON', on='date')['hours'].sum()
+
+    if weekly_velocity.empty:
+        return None
+
+    fig, ax = plt.subplots(figsize=(7, 4))
+    weekly_velocity.plot(kind='bar', ax=ax, color='#10b981', alpha=0.7)
+    
+    ax.set_title("Weekly Velocity (Throughput)")
+    ax.set_ylabel("Completed Estimated Hours")
+    ax.set_xlabel("Week Ending")
+    
+    # Format x-axis dates nicely
+    tick_labels = [item.strftime('%Y-%m-%d') for item in weekly_velocity.index]
+    ax.set_xticklabels(tick_labels, rotation=45, ha='right')
+    
+    plt.tight_layout()
+    return get_image_uri(fig)
+
+
+def generate_accuracy_scatter_chart(project_id):
+    """
+    Scatter plot: Estimated vs Actual Hours for Done tasks.
+    Helps visualize estimation bias (optimism/pessimism).
+    """
+    project = Project.objects.get(id=project_id)
+    done_tasks = project.tasks.filter(status='done', actual_hours__isnull=False)
+
+    if not done_tasks.exists():
+        return None
+
+    data = []
+    for t in done_tasks:
+        data.append({"estimated": t.estimated_hours, "actual": t.actual_hours})
+
+    df = pd.DataFrame(data)
+    
+    fig, ax = plt.subplots(figsize=(6, 6))
+    ax.scatter(df["estimated"], df["actual"], alpha=0.6, edgecolors='b', color='#3b82f6')
+    
+    # Add Reference Line (y=x)
+    max_val = max(df["estimated"].max(), df["actual"].max())
+    ax.plot([0, max_val], [0, max_val], 'r--', label='Perfect Estimation')
+    
+    ax.set_title("Estimation Accuracy Risk")
+    ax.set_xlabel("Estimated Hours")
+    ax.set_ylabel("Actual Hours")
+    ax.legend()
+    ax.grid(True, alpha=0.3)
+    plt.tight_layout()
+
+    return get_image_uri(fig)
+
+
+def calculate_project_forecast(project_id):
+    """
+    Calculates key projection metrics:
+    - Average Velocity (daily/weekly)
+    - Remaining Scope
+    - Predicted End Date
+    - Delay Risk
+    """
+    project = Project.objects.get(id=project_id)
+    
+    # 1. Remaining Scope
+    remaining_tasks = project.tasks.exclude(status='done')
+    remaining_hours = sum(t.estimated_hours for t in remaining_tasks)
+    
+    if remaining_hours == 0:
+        return {
+            "status": "Completed", 
+            "days_late": 0, 
+            "velocity": 0,
+            "predicted_date": "N/A"
+        }
+
+    # 2. Velocity Calculation (Last 30 days window ideal, or all time)
+    # Find start of work (first log) or project start
+    first_log = project.tasks.model.status_logs.field.model.objects.filter(
+        task__project=project
+    ).order_by('timestamp').first()
+    
+    start_date = first_log.timestamp.date() if first_log else project.start_date
+    today = pd.Timestamp.now(tz="UTC").date()
+    
+    days_elapsed = (today - start_date).days
+    if days_elapsed < 1:
+        days_elapsed = 1
+        
+    done_tasks = project.tasks.filter(status='done')
+    completed_hours = sum(t.estimated_hours for t in done_tasks)
+    
+    avg_daily_velocity = completed_hours / days_elapsed
+    avg_weekly_velocity = avg_daily_velocity * 7
+
+    # 3. Prediction
+    if avg_daily_velocity <= 0:
+        return {
+            "status": "Stalled",
+            "msg": "No velocity detected. Cannot predict.",
+            "velocity": 0,
+            "remaining_hours": remaining_hours
+        }
+    
+    days_needed = remaining_hours / avg_daily_velocity
+    predicted_end_date = today + pd.Timedelta(days=days_needed)
+    
+    deadline = project.deadline
+    delay_days = (predicted_end_date - deadline).days
+    
+    status = "On Track"
+    if delay_days > 0:
+        status = "At Risk" 
+    if delay_days > 14:
+        status = "Critical Delay"
+
+    return {
+        "status": status,
+        "velocity_weekly": round(avg_weekly_velocity, 1),
+        "remaining_hours": remaining_hours,
+        "predicted_date": predicted_end_date.strftime('%Y-%m-%d'),
+        "delay_days": delay_days,
+        "deadline": deadline
+    }
+
+
 def generate_status_dynamics_chart(project_id):
     """
     Generates a stacked area chart (ribbon chart) showing the number of tasks
