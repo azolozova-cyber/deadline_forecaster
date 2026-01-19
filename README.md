@@ -11,8 +11,10 @@ Deadline Forecaster helps project managers estimate the risk of missing deadline
 * **Tailwind CSS** (Frontend Styling via CDN)
 
 ## Screenshots
-*(Screenshots would go here)*
-![Главная страница] <img width="2529" height="1331" alt="image" src="https://github.com/user-attachments/assets/9df0caf5-671f-47cd-bb9e-a951a0f0a666" />
+Главная страница <img width="2529" height="1331" alt="image" src="https://github.com/user-attachments/assets/9df0caf5-671f-47cd-bb9e-a951a0f0a666" />
+Графики/Аналитика <img width="2531" height="1333" alt="image" src="https://github.com/user-attachments/assets/c9d3f5ec-5f85-4d72-a5c8-9d7b638864f9" />
+Добавление новой задачи <img width="2530" height="1324" alt="image" src="https://github.com/user-attachments/assets/d971616f-ed05-4e8b-bad7-5ef0adf97310" />
+
 
 ## How to Run Locally
 
